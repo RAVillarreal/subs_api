@@ -80,10 +80,6 @@ def download(file_name, link, folder_path):
 
     file_path = os.path.join(folder_path, file_name)
 
-    # Hacer carpeta
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-
     # Descargar el archivo
     response = requests.get(link, stream=True)
     extension = guess_extension(response.headers['Content-type'].split()[0].rstrip(";"))

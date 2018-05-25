@@ -1,14 +1,12 @@
 import os
 import shutil
 import json
+import uuid
 from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import JSONParser
-from django.http import Http404, HttpResponse
 from django.conf import settings
 from .models import Subtitle
-from .serializers import SubtitleSerializer
 from .subtitles import get_from_subdivx, download, get_video_info
 
 
@@ -20,8 +18,12 @@ class SubtitleList(views.APIView):
         # Obtener informacion de los videos
         files = json.loads(self.request.query_params["files"])
         files_info = get_video_info(files)
-        video_name = files_info[0]["title"] + ' ' + str(files_info[0]["season"])
-        folder_path = os.path.join(settings.MEDIA_ROOT, video_name)
+
+        # Hacer carpeta
+        folder_path = os.path.join(settings.MEDIA_ROOT, str(uuid.uuid4()))
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
         for file in files:
             try:
                 subtitle = Subtitle.objects.get(name=file)
@@ -41,15 +43,31 @@ class SubtitleList(views.APIView):
             # Descargar en carpeta
             download(file, link, folder_path)
 
-        # Comprimir
-        shutil.make_archive(folder_path, 'zip', folder_path)
-        shutil.rmtree(folder_path)
+        #Comprobar archivos descargados
 
-        # Retornar link de carpeta comprimida en JSON
-        data = {
-            "filename": video_name,
-            "season": str(files_info[0]["season"]),
-            "episodes": str(len(files)),
-            "link": r'http://localhost:8000/media/' + video_name + '.zip',
-        }
+        # Es serie o pelicula
+        if "season" in files_info[0]:
+            file_name = (files_info[0]["title"] + ' ' + str(files_info[0]["season"])).replace(' ', '.')
+            new_folder_path = os.path.join(settings.MEDIA_ROOT, file_name)
+            os.rename(folder_path, new_folder_path)
+            data = {
+                "title": files_info[0]["title"],
+                "season": str(files_info[0]["season"]),
+                "episodes": str(len(files)),
+                "link": r'http://localhost:8000/media/' + file_name + '.zip'
+            }
+        else:
+            file_name = (files_info[0]["title"]).replace(' ', '.')
+            new_folder_path = os.path.join(settings.MEDIA_ROOT, file_name)
+            os.rename(folder_path, new_folder_path)
+            data = {
+                "filename": files_info[0]["title"],
+                "link": r'http://localhost:8000/media/' + file_name + '.zip',
+            }
+
+        # Comprimir
+        shutil.make_archive(new_folder_path, 'zip', new_folder_path)
+        shutil.rmtree(new_folder_path)
+
+        # Retornar JSON
         return Response(data=data, status=status.HTTP_200_OK)
