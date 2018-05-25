@@ -1,11 +1,8 @@
 from django.db import models
 
 # Create your models here.
-class SubtitleModel(models.Model):
+class Subtitle(models.Model):
     name = models.CharField(max_length=100)
     link = models.TextField()
-    downloads = models.IntegerField()
-    date = models.DateField()
-
-    def save(self):
-        pass
+    downloads = models.IntegerField(default=0)
+    date = models.DateField(auto_now_add=True)
