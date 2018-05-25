@@ -2,12 +2,13 @@
 Modulo para encontrar subtitulos de Subdivx
 """
 import os
-from mimetypes import guess_extension, add_type
+import PTN
 import rarfile
 import zipfile
 import requests
 import re
 from bs4 import BeautifulSoup
+from mimetypes import guess_extension, add_type
 
 # Anadir extension .rar
 add_type('application/x-rar-compressed', '.rar')
@@ -15,25 +16,14 @@ add_type('application/x-rar-compressed', '.rar')
 
 def get_video_info(files):
     """
-    Function to obtain information about the video file
+    Function to obtain information about the video files
     :param files: An array of filenames
     :return: An array of dictionaries with video information
     """
+
     files_info = []
-    regex = re.compile(r"(.*?)\.S?(\d{1,2})E?(\d{2})\.(.*)")
     for file in files:
-        match = regex.match(file)
-        info = {
-            "full_name": file,
-            "name": match.group(1),
-            "year": '',
-            "season": match.group(2),
-            "episode": match.group(3),
-            "quality": '',
-            "format": '',
-            "coder": '',
-            "extension": '',
-        }
+        info = PTN.parse(file)
         files_info.append(info)
 
     return files_info
@@ -65,12 +55,15 @@ def get_from_subdivx(name):
     subdivx_results = BeautifulSoup(subdivx_response.content)
 
     # Si es una pagina o resultado de busqueda
-    page = subdivx_results.find("a", attrs={"class": "link1"})
-    search_result = subdivx_results.find("div", attrs={"id": "buscador_detalle_sub_datos"})
-    if page:
-        download_link = page["href"]
-    elif search_result:
-        download_link = search_result.find_all("a")[-1]["href"]
+    # Para pagina es X6X
+    # Para resultado de busqueda es X5X
+
+    url_code = re.search(r"(?P<Search>X5X)|(?P<Page>X6X)", google_link)
+    if url_code.group("Page"):
+        download_link = subdivx_results.find("a", attrs={"class": "link1"})["href"]
+    elif url_code.group("Search"):
+        download_link = subdivx_results.find("div", attrs={"id": "buscador_detalle_sub_datos"}).find_all("a")[-1][
+            "href"]
     else:
         return None
 

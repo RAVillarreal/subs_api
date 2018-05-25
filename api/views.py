@@ -20,7 +20,7 @@ class SubtitleList(views.APIView):
         # Obtener informacion de los videos
         files = json.loads(self.request.query_params["files"])
         files_info = get_video_info(files)
-        video_name = files_info[0]["name"] + ' ' + files_info[0]["season"]
+        video_name = files_info[0]["title"] + ' ' + str(files_info[0]["season"])
         folder_path = os.path.join(settings.MEDIA_ROOT, video_name)
         for file in files:
             try:
@@ -42,13 +42,14 @@ class SubtitleList(views.APIView):
             download(file, link, folder_path)
 
         # Comprimir
-        shutil.make_archive(video_name, 'zip', folder_path)
+        shutil.make_archive(folder_path, 'zip', folder_path)
+        shutil.rmtree(folder_path)
 
         # Retornar link de carpeta comprimida en JSON
-        file_pointer = open(folder_path, "r")
         data = {
             "filename": video_name,
-            "season": files_info[0].season,
-            "link": file_pointer
+            "season": str(files_info[0]["season"]),
+            "episodes": str(len(files)),
+            "link": r'http://localhost:8000/media/' + video_name + '.zip',
         }
         return Response(data=data, status=status.HTTP_200_OK)

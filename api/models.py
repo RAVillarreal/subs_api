@@ -6,3 +6,6 @@ class Subtitle(models.Model):
     link = models.TextField()
     downloads = models.IntegerField(default=0)
     date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
