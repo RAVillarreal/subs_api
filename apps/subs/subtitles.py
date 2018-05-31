@@ -28,15 +28,9 @@ def get_video_info(files):
 
     return files_info
 
+def get_google_link(name, site = "subdivx.com"):
+    """ Function to get the entry link of google seach """
 
-def get_from_subdivx(name):
-    """
-    Function that returns the download link from SubDivx
-    :param video_info: A dictionary with information of the video file
-    :return:
-    """
-
-    # Buscar a través de Google
     google_query = name.lower().split(".")
     google_url = 'https://www.google.com/search?client=ubuntu&channel=fs&q=site%3Asubdivx.com+' + "+".join(google_query)
     google_response = requests.get(google_url)
@@ -48,9 +42,12 @@ def get_from_subdivx(name):
             google_link = result.cite.text
             break
     else:
-        return
+        return None
 
-    # Buscar dentro de subdivx
+def get_from_subdivx(name):
+    """ Get the download link from SubDivx """
+
+    google_link = get_google_link(name)
     subdivx_response = requests.get(google_link)
     subdivx_results = BeautifulSoup(subdivx_response.content)
 

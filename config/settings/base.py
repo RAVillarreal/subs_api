@@ -39,7 +39,7 @@ DJANGO_APPS = [
 ]
 
 MY_APPS = [
-    'api',
+    'apps.api',
 ]
 
 THIRD_PARTY_APPS = []
