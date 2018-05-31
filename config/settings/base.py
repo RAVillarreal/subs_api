@@ -29,7 +29,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 DJANGO_APPS = [
-    'rest_framework',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,11 +38,14 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 
-MY_APPS = [
-    'api',
+THIRD_PARTY_APPS = [
+    'rest_framework',
 ]
 
-THIRD_PARTY_APPS = []
+MY_APPS = [
+    'apps.api',
+    'apps.subs',
+]
 
 INSTALLED_APPS = DJANGO_APPS + MY_APPS + THIRD_PARTY_APPS
 
@@ -107,9 +110,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = 'es-ve'
+LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'America/Caracas'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
