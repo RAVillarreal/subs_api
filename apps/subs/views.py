@@ -29,8 +29,8 @@ class SubtitlesView(APIView):
                   else:
                       print("Subtitle for {0} not found.".format(file))
                       continue
-
-              download(file, link)
+                      
+              download(file, link, uuid4())
 
          	zip = subtitles.get_zip_file()
          	if zip:
