@@ -22,11 +22,12 @@ def get_video_info(file):
 def get_google_link(query, site):
     """ Get site link from google search """
 
-    google_query = re.find_all(r'\w+', query.lower())
-    google_url = 'https://www.google.com/search?client=ubuntu&channel=fs&q=site%3A{0}}+{1}'.format(site, "+".join(google_query))
+    google_query = re.findall(r'\w+', query.lower())
+    google_url = 'https://www.google.com/search?client=ubuntu&channel=fs&q=site%3A{0}+{1}'.format(site, "+".join(google_query))
     google_response = requests.get(google_url)
     google_results = BeautifulSoup(google_response.content).find_all('div', attrs={"class": "g"})
     for result in google_results:
+        print(result.prettify())
         result_text = result.find("span", attrs={"class": "st"}).text.lower().split(" ")
         match_count = len(set(google_query).intersection(result_text))
         if match_count > len(google_query) / 2:
@@ -44,16 +45,17 @@ def get_from_subdivx(query):
     if google_link:
         subdivx_response = requests.get(google_link)
         subdivx_results = BeautifulSoup(subdivx_response.content)
-        url_code = re.search(r"(?P<Search>X5X)|(?P<Page>X6X)", google_link)
-        if url_code.group("Page"):
-            download_link = subdivx_results.find("a", attrs={"class": "link1"})["href"]
-        elif url_code.group("Search"):
-            download_link = subdivx_results.find("div", attrs={"id": "buscador_detalle_sub_datos"}).find_all("a")[-1][
-                "href"]
-        else:
-            return None
+        code = re.search(r"(?P<Search>X5X)|(?P<Page>X6X)", google_link)
+        if code:
+            if code.group("Page"):
+                download_link = subdivx_results.find("a", attrs={"class": "link1"})["href"]
+            elif code.group("Search"):
+                download_link = subdivx_results.find("div", attrs={"id": "buscador_detalle_sub_datos"}).find_all("a")[-1][
+                    "href"]
+            else:
+                return None
 
-        return download_link
+            return download_link
 
     return None
 
@@ -93,7 +95,7 @@ def download(file_name, link, download_folder):
 def get_zip_file(folder_path):
     """ Compress the subtitles folder and return the download link """
 
-    if os.path.exist(folder_path):
+    if os.path.exists(folder_path):
         zip = shutil.make_archive(folder_path, 'zip')
         zip = zipfile.ZipFile(zip)
         os.rmtree(folder_path)
