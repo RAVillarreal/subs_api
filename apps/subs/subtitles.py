@@ -26,16 +26,19 @@ def get_google_link(query, site):
     google_url = 'https://www.google.com/search?client=ubuntu&channel=fs&q=site%3A{0}+{1}'.format(site, "+".join(google_query))
     google_response = requests.get(google_url)
     google_results = BeautifulSoup(google_response.content).find_all('div', attrs={"class": "g"})
-    for result in google_results:
-        print(result.prettify())
-        result_text = result.find("span", attrs={"class": "st"}).text.lower().split(" ")
-        match_count = len(set(google_query).intersection(result_text))
-        if match_count > len(google_query) / 2:
-            google_link = result.cite.text
+    if google_results:
+        best_match = [0, google_results[0]]
+        for result in google_results:
+            result_text = result.find("span", attrs={"class": "st"}).text.lower().split(" ")
+            match_count = len(set(google_query).intersection(result_text))
+            if match_count > best_match[0]:
+                best_match[0] = match_count
+                best_match[1] = result
 
-            return google_link
-    else:
-        return None
+        google_link = best_match[1].cite.text
+        return google_link
+
+    return None
 
 
 def get_from_subdivx(query):
@@ -59,13 +62,13 @@ def get_from_subdivx(query):
 
     return None
 
-def extract_subtitle(file_path, extension):
+def extract_subtitle(file_path, extension, extract_folder):
     """ Extract the most heavy .srt file """
 
     if extension == '.rar':
-        compressed = rarfile.RarFile(file_path)
+        compressed = rarfile.RarFile(file_path + extension)
     elif extension == '.zip':
-        compressed = zipfile.ZipFile(file_path)
+        compressed = zipfile.ZipFile(file_path + extension)
     else:
         return None
 
@@ -74,14 +77,15 @@ def extract_subtitle(file_path, extension):
     for member in compressed_list:
         if member.file_size > subtitle.file_size and member.endswith('srt'):
             subtitle = member
-    compressed.extract(subtitle)
-    os.remove(file_path)
+
+    compressed.extract(subtitle, extract_folder)
+    os.remove(file_path + extension)
 
 def download(file_name, link, download_folder):
     """ Download and extract subtitle inside a temporary folder """
 
     file_path = os.path.join(download_folder, file_name)
-    if not os.path.exist(download_folder):
+    if not os.path.exists(download_folder):
         os.makedirs(download_folder)
     response = requests.get(link, stream=True)
     extension = guess_extension(response.headers['Content-type'].split()[0].rstrip(";"))
@@ -90,15 +94,15 @@ def download(file_name, link, download_folder):
         if chunk:
             handle.write(chunk)
     handle.close()
-    extract_subtitle(file_path, extension)
+    extract_subtitle(file_path, extension, download_folder)
  
 def get_zip_file(folder_path):
     """ Compress the subtitles folder and return the download link """
 
     if os.path.exists(folder_path):
-        zip = shutil.make_archive(folder_path, 'zip')
-        zip = zipfile.ZipFile(zip)
-        os.rmtree(folder_path)
-        return zip.getinfo()
+        zip_path = shutil.make_archive(folder_path, 'zip', folder_path)
+        zip = zipfile.ZipFile(zip_path)
+        shutil.rmtree(folder_path)
+        return zip
 
     return None

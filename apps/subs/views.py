@@ -17,7 +17,7 @@ class SubtitlesView(APIView):
 
         files = json.loads(self.request.query_params["files"])
         if files:
-            download_folder = os.path.join(settings.MEDIA_ROOT, str(uuid.uuid4()))
+            download_folder = os.path.join(settings.MEDIA_ROOT, str(uuid.uuid4()) + '/')
             for file in files:
                 try:
                     subtitle = Subtitle.objects.get(name=file)
@@ -35,8 +35,8 @@ class SubtitlesView(APIView):
             if zip:
                 data = {
                     "video_information": subtitles.get_video_info(files[0]),
-                    "files": zip.length,
-                    "link": "http://localhost:8000/media/{0}".format(zip.file_name),
+                    "files": len(zip.filelist),
+                    "link": "http://localhost:8000/media/{0}".format(zip.filename.replace(settings.MEDIA_ROOT, '')),
                 }
                 return Response(data=data, status=status.HTTP_200_OK)
 
