@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "fa4d52381be4cc933d2d6b480f9694bac44cfc379deb89e7c0094ef0c9b01574"
+            "sha256": "fafe0d348a6efa62b5bfeed8a93791655668573b06c91f253bafc825e136885d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -62,12 +62,26 @@
             ],
             "version": "==2.8"
         },
+        "parse-torrent-name": {
+            "hashes": [
+                "sha256:ada6fa9d9f27dee0dece96cbd845962e3d22ec70239fecdc5b71e776c0ec31c4"
+            ],
+            "index": "pypi",
+            "version": "==1.1.1"
+        },
         "pytz": {
             "hashes": [
                 "sha256:303879e36b721603cc54604edcac9d20401bdbe31e1e4fdee5b9f98d5d31dfda",
                 "sha256:d747dd3d23d77ef44c6a3526e274af6efeb0a6f1afd5a69ba4d5be4098c8e141"
             ],
             "version": "==2019.1"
+        },
+        "rarfile": {
+            "hashes": [
+                "sha256:e816409e3b36794507cbe0b678bed3e4703d7412c5f7f9201a510ed6fdc66c35"
+            ],
+            "index": "pypi",
+            "version": "==3.0"
         },
         "requests": {
             "hashes": [

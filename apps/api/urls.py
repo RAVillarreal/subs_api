@@ -1,9 +1,9 @@
 from django.urls import path
 
-from apps.subs.views import SubtitleView
+from apps.api.views import SubtitlesView
 
 app_name = 'api'
 
 urlpatterns = [
-    path('subtitles/', SubtitleView.as_view()),
+    path('subtitles/', SubtitlesView.as_view()),
 ]

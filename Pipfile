@@ -10,6 +10,8 @@ requests = "*"
 django = "*"
 beautifulsoup4 = "*"
 djangorestframework = "*"
+parse-torrent-name = "*"
+rarfile = "*"
 
 [requires]
 python_version = "3.6"
