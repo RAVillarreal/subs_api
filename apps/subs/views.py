@@ -2,6 +2,7 @@ from django.http import Http404
 
 # Create your views here.
 from rest_framework import status
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -19,8 +20,8 @@ class SubtitleView(APIView):
 
         return subtitle
 
-    def get(self, request):
-        name = request.query_params['name']
+    def post(self, request: Request):
+        name = request.POST.get('name')
         if name:
             subtitle = self.get_subtitle(name)
             return Response(subtitle, status=status.HTTP_200_OK)
